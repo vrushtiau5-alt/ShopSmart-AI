@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}AI Shopping Assistant - ShopSmart AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar avatar-ai"><i class="fas fa-robot"></i></div>
+                <div>
+                    <h5 class="fw-bold mb-0 text-white">ShopSmart AI Assistant</h5>
+                    <div class="text-info small"><i class="fas fa-circle text-success fs-6 me-1"></i> Active Natural Intent Engine</div>
+                </div>
+            </div>
+            <a href="{{ url_for('user.products') }}" class="btn btn-outline-light btn-sm rounded-pill"><i class="fas fa-store me-1"></i> Catalog</a>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-messages" class="chat-messages">
+            <div class="message-row assistant-row">
+                <div class="avatar avatar-ai"><i class="fas fa-robot"></i></div>
+                <div class="message-bubble">
+                    Hello! I'm your AI Shopping Assistant. How can I help you today?
+                    <br><br>
+                    You can ask me questions like:
+                    <ul class="mb-0 ps-3 mt-1 small">
+                        <li>"Show me induction stoves"</li>
+                        <li>"I need headphones for music"</li>
+                        <li>"Show me running shoes"</li>
+                        <li>"I need a laptop under 60000 for programming"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area & Suggestion Pills -->
+        <div class="chat-input-area">
+            <div class="suggestion-pills">
+                <span class="suggestion-pill" data-query="Show me induction stoves"><i class="fas fa-fire text-warning me-1"></i> Induction Stoves</span>
+                <span class="suggestion-pill" data-query="Show me headphones for music"><i class="fas fa-headphones text-info me-1"></i> Headphones for Music</span>
+                <span class="suggestion-pill" data-query="Show me running shoes"><i class="fas fa-shoe-prints text-success me-1"></i> Running Shoes</span>
+                <span class="suggestion-pill" data-query="I need a laptop for programming"><i class="fas fa-laptop text-primary me-1"></i> Programming Laptop</span>
+                <span class="suggestion-pill" data-query="Which one is cheaper?"><i class="fas fa-sort-amount-down text-danger me-1"></i> Which one is cheaper?</span>
+            </div>
+
+            <form id="chat-form" class="d-flex gap-2">
+                <input type="text" id="user-input" class="form-control rounded-pill px-4" placeholder="Ask AI assistant in normal English..." required autocomplete="off">
+                <button type="submit" id="send-btn" class="btn btn-primary-custom rounded-circle p-3" style="width: 50px; height: 50px; flex-shrink: 0;" title="Send Message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/ai.js') }}"></script>
+{% endblock %}

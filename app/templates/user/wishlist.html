@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}My Wishlist - ShopSmart AI{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="fas fa-heart text-danger me-2"></i>My Saved Wishlist</h2>
+
+    {% if items %}
+        <div class="row g-4">
+            {% for item in items %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="product-card">
+                        <div class="product-img-wrap">
+                            <img src="{{ item.product.image_url or '/static/images/placeholder.svg' }}" alt="{{ item.product.title }}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                        </div>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <h6 class="fw-bold mb-1 text-truncate">{{ item.product.title }}</h6>
+                            <div class="price-tag mb-3">₹{{ "%.2f"|format(item.product.price) }}</div>
+                            <div class="mt-auto d-flex flex-column gap-2">
+                                <form action="{{ url_for('user.wishlist_to_cart') }}" method="POST">
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <button type="submit" class="btn btn-primary-custom btn-sm w-100"><i class="fas fa-cart-plus me-1"></i> Move to Cart</button>
+                                </form>
+                                <form action="{{ url_for('user.toggle_wishlist') }}" method="POST">
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="fas fa-trash me-1"></i> Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+            <i class="far fa-heart fs-1 text-muted mb-3"></i>
+            <h4>Your Wishlist is Empty</h4>
+            <p class="text-muted">Save your favorite products to view or purchase them later.</p>
+            <a href="{{ url_for('user.products') }}" class="btn btn-primary-custom rounded-pill px-4 mt-2">Explore Products</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

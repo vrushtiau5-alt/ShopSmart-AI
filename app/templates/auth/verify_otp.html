@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Reset OTP - ShopSmart AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 p-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill fw-bold mb-2">VERIFICATION CODE</span>
+                        <h2 class="fw-bold"><i class="fas fa-shield-alt me-2 text-warning"></i>Enter Reset OTP</h2>
+                        <p class="text-muted small">Check your console or email for the 6-digit reset OTP code</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('auth.verify_reset_otp') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Email Address *</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ email }}" placeholder="Your email address" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="otp" class="form-label fw-semibold">6-Digit OTP Code *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key text-muted"></i></span>
+                                <input type="text" class="form-control text-center letter-spacing-2 fs-4 fw-bold" id="otp" name="otp" placeholder="000000" maxlength="6" required style="letter-spacing: 5px;">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning text-dark btn-lg w-100 rounded-pill fw-bold shadow-sm mb-3">
+                            <i class="fas fa-check-circle me-2"></i>VERIFY OTP CODE
+                        </button>
+
+                        <div class="text-center">
+                            <a href="{{ url_for('auth.forgot_password') }}" class="text-muted small text-decoration-none">
+                                <i class="fas fa-redo me-1"></i>Resend OTP Code
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

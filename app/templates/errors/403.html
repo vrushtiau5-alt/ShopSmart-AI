@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}403 Forbidden - ShopSmart AI{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="row justify-content-center py-5">
+        <div class="col-md-6">
+            <div class="display-1 text-danger fw-bold"><i class="fas fa-lock me-2"></i>403</div>
+            <h2 class="fw-bold mt-3">Access Forbidden</h2>
+            <p class="text-muted lead">You do not have the required permissions to access this page. Administrator authorization is required.</p>
+            <div class="mt-4 d-flex justify-content-center gap-3">
+                <a href="{{ url_for('user.home') }}" class="btn btn-primary-custom"><i class="fas fa-home me-2"></i>Return Home</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary"><i class="fas fa-sign-in-alt me-2"></i>Login as Admin</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

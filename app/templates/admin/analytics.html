@@ -1,0 +1,70 @@
+{% extends 'admin_base.html' %}
+{% block title %}AI Analytics - Admin{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h3 class="fw-bold mb-0">AI Assistant Analytics</h3>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3"><i class="fas fa-tags text-primary me-2"></i>Top Categories Queried</h5>
+            <ul class="list-group list-group-flush">
+                {% for cat, count in top_categories %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">{{ cat }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ count }} Queries</span>
+                    </li>
+                {% else %}
+                    <li class="list-group-item text-muted">No query logs recorded yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3"><i class="fas fa-bullseye text-info me-2"></i>Top User Intents</h5>
+            <ul class="list-group list-group-flush">
+                {% for intent, count in top_intents %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">{{ intent }}</span>
+                        <span class="badge bg-info text-dark rounded-pill">{{ count }} Intent Matches</span>
+                    </li>
+                {% else %}
+                    <li class="list-group-item text-muted">No intent logs recorded yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Recent AI Logs -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="card-header bg-light fw-bold py-3">Recent AI Query Log History (Total: {{ total_logs }})</div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User Query</th>
+                    <th>Matched Category</th>
+                    <th>Results</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td class="small text-muted">{{ log.timestamp.strftime('%b %d, %Y %I:%M %p') }}</td>
+                        <td class="fw-semibold">"{{ log.query_text }}"</td>
+                        <td><span class="badge bg-secondary">{{ log.category_matched or 'General' }}</span></td>
+                        <td><span class="badge bg-success">{{ log.results_count }} Products</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

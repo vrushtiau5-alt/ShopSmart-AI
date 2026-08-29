@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Product Comparison - ShopSmart AI{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+        <h2 class="fw-bold mb-0"><i class="fas fa-balance-scale text-primary me-2"></i>Product Comparison</h2>
+        {% if products %}
+        <a href="{{ url_for('user.clear_compare') }}" class="btn btn-outline-danger btn-sm rounded-pill"><i
+                class="fas fa-trash me-1"></i> Clear Comparison</a>
+        {% endif %}
+    </div>
+
+    {% if products %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0 text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 20%;">Feature / Specs</th>
+                        {% for p in products %}
+                        <th style="width: {{ 80 // products|length }}%;">
+                            <div class="position-relative p-2">
+                                <a href="{{ url_for('user.remove_compare', id=p.id) }}"
+                                    class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1"
+                                    title="Remove"><i class="fas fa-times"></i></a>
+                                <img src="{{ p.image_url or '/static/images/placeholder.svg' }}" alt="{{ p.title }}"
+                                    style="width: 100px; height: 90px; object-fit: cover;" class="rounded mb-2" loading="lazy" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                                <div class="fw-bold text-truncate" title="{{ p.title }}">{{ p.title }}</div>
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold bg-light">Price</td>
+                        {% for p in products %}
+                        <td class="fs-5 fw-bold text-primary">₹{{ "%.2f"|format(p.price) }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Brand</td>
+                        {% for p in products %}
+                        <td>{{ p.brand or 'Generic' }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Rating</td>
+                        {% for p in products %}
+                        <td><span class="badge bg-warning text-dark fw-bold">⭐ {{ p.rating }} ({{ p.reviews_count
+                                }})</span></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Category</td>
+                        {% for p in products %}
+                        <td>{{ p.category.name if p.category else 'General' }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Availability</td>
+                        {% for p in products %}
+                        <td>
+                            {% if p.stock > 0 %}
+                            <span class="badge bg-success-subtle text-success">In Stock ({{ p.stock }})</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger">Out of Stock</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Action</td>
+                        {% for p in products %}
+                        <td>
+                            <button class="btn btn-primary-custom btn-sm btn-add-cart" data-product-id="{{ p.id }}">
+                                <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                            </button>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+        <i class="fas fa-balance-scale fs-1 text-muted mb-3"></i>
+        <h4>No Products Selected for Comparison</h4>
+        <p class="text-muted">Click the compare icon on product cards to add up to 4 items for side-by-side spec
+            comparison.</p>
+        <a href="{{ url_for('user.products') }}" class="btn btn-primary-custom rounded-pill px-4 mt-2">Browse
+            Catalog</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

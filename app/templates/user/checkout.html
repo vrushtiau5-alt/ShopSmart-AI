@@ -1,0 +1,593 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - ShopSmart AI{% endblock %}
+{% block content %}
+
+<style>
+/* Custom Checkout Styling Matching Google Pay UI */
+.checkout-stepper-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+.payment-radio-card {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.payment-radio-card:hover {
+    border-color: #1a73e8;
+    background-color: #f8faff;
+}
+.payment-radio-card.selected {
+    border-color: #1a73e8;
+    background-color: #f4f8ff;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.12);
+}
+.btn-gpay-primary {
+    background-color: #1a73e8;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    height: 56px;
+    font-size: 18px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.btn-gpay-primary:hover {
+    background-color: #1557b0;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35);
+}
+/* Google Pay Sheet Modal Styling */
+.gpay-modal-content {
+    border-radius: 24px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.22);
+    overflow: hidden;
+}
+.gpay-modal-header {
+    padding: 20px 24px 10px 24px;
+    border-bottom: none;
+}
+.gpay-field-box {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: #ffffff;
+    margin-bottom: 12px;
+}
+.gpay-pay-btn {
+    background-color: #1a73e8;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    height: 52px;
+    font-size: 17px;
+    font-weight: 600;
+    width: 100%;
+}
+.gpay-pay-btn:hover {
+    background-color: #1557b0;
+    color: #ffffff;
+}
+</style>
+
+<div class="container py-4" style="max-width: 1140px;">
+    
+    <!-- 1. Progress Stepper -->
+    <div class="d-flex justify-content-center align-items-center mb-4 pb-2">
+        <div class="d-flex align-items-center gap-3 text-muted small fw-medium">
+            <div class="d-flex align-items-center gap-2">
+                <span class="checkout-stepper-icon bg-primary text-white"><i class="fas fa-check"></i></span>
+                <span class="fw-semibold text-dark">Cart</span>
+            </div>
+            <div class="border-top border-2" style="width: 50px; border-color: #1a73e8 !important;"></div>
+            <div class="d-flex align-items-center gap-2 text-primary fw-bold">
+                <span class="checkout-stepper-icon bg-primary text-white">2</span>
+                <span class="fw-bold text-primary">Checkout</span>
+            </div>
+            <div class="border-top border-2 border-secondary-subtle" style="width: 50px;"></div>
+            <div class="d-flex align-items-center gap-2 text-muted">
+                <span class="checkout-stepper-icon bg-secondary-subtle text-secondary">3</span>
+                <span>Order Summary</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Header Row -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold fs-3 text-dark mb-0">Checkout</h2>
+        <span class="text-muted small"><i class="fas fa-lock text-secondary me-1"></i> Secure Checkout</span>
+    </div>
+
+    <form id="checkoutForm" action="{{ url_for('user.place_order') }}" method="POST">
+        <div class="row g-4">
+            
+            <!-- Left Column: Order Summary + Payment Methods -->
+            <div class="col-lg-7">
+                
+                <!-- Order Summary Card -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+                        <h5 class="fw-bold mb-0 text-dark">Order Summary</h5>
+                        <span class="text-muted small fw-semibold cursor-pointer">{{ cart_items|length }} Items <i class="fas fa-chevron-up ms-1 small"></i></span>
+                    </div>
+
+                    <!-- Items List -->
+                    <div class="d-flex flex-column gap-3 mb-3">
+                        {% for item in cart_items %}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="{{ item.product.image_url or '/static/images/placeholder.svg' }}" alt="{{ item.product.title }}" style="width: 52px; height: 52px; object-fit: cover;" class="rounded-3 border bg-light" loading="lazy" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                                    <div>
+                                        <div class="fw-bold text-dark small" style="max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ item.product.title }}</div>
+                                        <div class="text-muted small">Qty: {{ item.quantity }}</div>
+                                    </div>
+                                </div>
+                                <span class="fw-bold text-dark">₹{{ "%.2f"|format(item.item_total) }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="my-3 text-secondary opacity-25">
+
+                    <!-- Breakdown Table -->
+                    <div class="d-flex justify-content-between mb-2 text-secondary small">
+                        <span>Subtotal</span>
+                        <span class="fw-bold text-dark">₹{{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary small">
+                        <span>Shipping <i class="fas fa-info-circle text-muted ms-1" style="font-size: 11px;"></i></span>
+                        <span class="fw-bold text-dark">{% if shipping == 0 %}FREE{% else %}₹{{ "%.2f"|format(shipping) }}{% endif %}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary small">
+                        <span>Tax (GST 18%)</span>
+                        <span class="fw-bold text-dark">₹{{ "%.2f"|format(tax) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-secondary small">
+                        <span>Discount</span>
+                        <span class="fw-bold text-success">-₹0.00</span>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                        <div>
+                            <div class="fw-bold fs-5 text-dark">Total Amount</div>
+                            <div class="text-muted" style="font-size: 11px;">(Inclusive of all taxes)</div>
+                        </div>
+                        <div class="fw-bold fs-3 text-dark">₹{{ "%.2f"|format(total) }}</div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address Input Fields -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark">Shipping Information</h5>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Full Name</label>
+                        <input type="text" class="form-control rounded-3" value="{{ current_user.full_name }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label fw-bold small text-secondary">Street Address</label>
+                        <input type="text" id="address" name="address" class="form-control rounded-3" placeholder="123 Tech Park Ave, Suite 400" value="123 Tech Park Avenue" required>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="city" class="form-label fw-bold small text-secondary">City</label>
+                            <input type="text" id="city" name="city" class="form-control rounded-3" placeholder="Mumbai" value="Mumbai" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="zip_code" class="form-label fw-bold small text-secondary">Zip / Postal Code</label>
+                            <input type="text" id="zip_code" name="zip_code" class="form-control rounded-3" placeholder="400001" value="400001" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Section -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold mb-3 text-dark">Payment Methods</h5>
+
+                    <div class="d-flex flex-column gap-3">
+                        <!-- 1. UPI / Google Pay -->
+                        <div class="payment-radio-card selected" id="cardGPay">
+                            <div class="form-check d-flex align-items-center justify-content-between mb-0 w-100 cursor-pointer">
+                                <div class="d-flex align-items-center gap-3">
+                                    <input class="form-check-input flex-shrink-0 mt-0" type="radio" name="payment_method" id="payGPay" value="Google Pay" checked style="width: 20px; height: 20px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <svg width="36" height="24" viewBox="0 0 36 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect width="36" height="24" rx="4" fill="#F8F9FA"/>
+                                            <path d="M14.5 12.2V16H13.2V8H16.6C17.4 8 18.1 8.3 18.7 8.9C19.3 9.5 19.6 10.2 19.6 11C19.6 11.8 19.3 12.5 18.7 13.1C18.1 13.7 17.4 14 16.6 14H14.5V12.2ZM14.5 9.3V12.7H16.6C17.1 12.7 17.5 12.5 17.8 12.2C18.1 11.9 18.3 11.5 18.3 11C18.3 10.5 18.1 10.1 17.8 9.8C17.5 9.5 17.1 9.3 16.6 9.3H14.5Z" fill="#5F6368"/>
+                                            <path d="M22.1 9.7C22.9 9.7 23.5 9.9 24 10.3C24.5 10.7 24.7 11.3 24.7 12V16H23.5V15.1C23 15.7 22.4 16 21.6 16C20.9 16 20.3 15.8 19.8 15.4C19.3 15 19.1 14.5 19.1 13.8C19.1 13.1 19.4 12.6 19.9 12.2C20.4 11.8 21.1 11.6 22 11.6C22.8 11.6 23.4 11.7 23.9 12V11.8C23.9 11.3 23.7 10.9 23.3 10.6C22.9 10.3 22.5 10.1 22 10.1C21.3 10.1 20.7 10.4 20.3 11L19.3 10.2C19.9 9.8 20.8 9.7 22.1 9.7ZM20.4 13.8C20.4 14.2 20.6 14.4 20.9 14.7C21.2 15 21.6 15.1 22 15.1C22.6 15.1 23.1 14.9 23.5 14.5C23.9 14.1 24.1 13.6 24.1 13.1C23.7 12.8 23.2 12.6 22.5 12.6C21.9 12.6 21.4 12.7 21 13C20.6 13.2 20.4 13.5 20.4 13.8Z" fill="#5F6368"/>
+                                            <path d="M29.7 9.9L26.3 17.6H24.9L26.6 13.8L23.4 9.9H24.9L27.3 13.3L29.7 9.9H29.7Z" fill="#5F6368"/>
+                                            <path d="M10.7 12.2C10.7 11.7 10.6 11.2 10.5 10.8H6.5V12.4H8.9C8.8 13 8.4 13.6 7.8 14C7.3 14.3 6.7 14.5 6.5 14.5C5.4 14.5 4.5 14.1 3.7 13.3C2.9 12.5 2.5 11.6 2.5 10.5C2.5 9.4 2.9 8.5 3.7 7.7C4.5 6.9 5.4 6.5 6.5 6.5C7.5 6.5 8.4 6.9 9.1 7.5L10.3 6.3C9.3 5.3 8 4.8 6.5 4.8C5 4.8 3.6 5.3 2.5 6.4C1.4 7.5 0.8 8.8 0.8 10.5C0.8 12.2 1.4 13.5 2.5 14.6C3.6 15.7 5 16.2 6.5 16.2C8.1 16.2 9.5 15.6 10.4 14.5C11.3 13.4 11.8 12 11.8 10.5C10.7 12.2 10.7 12.2 10.7 12.2Z" fill="#4285F4"/>
+                                        </svg>
+                                        <span class="fw-bold text-dark">UPI / Google Pay</span>
+                                    </div>
+                                </div>
+                                <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-2 fw-semibold">Google Pay</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Credit / Debit Card -->
+                        <div class="payment-radio-card" id="cardCredit">
+                            <div class="form-check d-flex align-items-center justify-content-between mb-0 w-100 cursor-pointer">
+                                <div class="d-flex align-items-center gap-3">
+                                    <input class="form-check-input flex-shrink-0 mt-0" type="radio" name="payment_method" id="payCredit" value="Credit Card" style="width: 20px; height: 20px;">
+                                    <span class="fw-bold text-dark">Credit / Debit Card</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="badge bg-primary-subtle text-primary border px-2 py-1 small fw-bold">VISA</span>
+                                    <span class="badge bg-danger-subtle text-danger border px-2 py-1 small fw-bold">MasterCard</span>
+                                    <span class="badge bg-warning-subtle text-dark border px-2 py-1 small fw-bold">RuPay</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Net Banking -->
+                        <div class="payment-radio-card" id="cardNetBanking">
+                            <div class="form-check d-flex align-items-center justify-content-between mb-0 w-100 cursor-pointer">
+                                <div class="d-flex align-items-center gap-3">
+                                    <input class="form-check-input flex-shrink-0 mt-0" type="radio" name="payment_method" id="payNetBanking" value="Net Banking" style="width: 20px; height: 20px;">
+                                    <span class="fw-bold text-dark">Net Banking</span>
+                                </div>
+                                <i class="fas fa-university text-secondary fs-5"></i>
+                            </div>
+                        </div>
+
+                        <!-- 4. Cash on Delivery -->
+                        <div class="payment-radio-card" id="cardCOD">
+                            <div class="form-check d-flex align-items-center justify-content-between mb-0 w-100 cursor-pointer">
+                                <div class="d-flex align-items-center gap-3">
+                                    <input class="form-check-input flex-shrink-0 mt-0" type="radio" name="payment_method" id="payCOD" value="Cash on Delivery" style="width: 20px; height: 20px;">
+                                    <span class="fw-bold text-dark">Cash on Delivery</span>
+                                </div>
+                                <i class="fas fa-money-bill-wave text-secondary fs-5"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Action Button -->
+                <button type="button" id="btnMainGPay" class="btn btn-gpay-primary w-100 d-flex align-items-center justify-content-between px-4 shadow-sm mb-2">
+                    <div class="d-flex align-items-center">
+                        <span class="bg-white rounded-pill px-2.5 py-1 text-dark d-inline-flex align-items-center shadow-sm me-3" style="height: 32px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay" style="height: 18px;" referrerpolicy="no-referrer">
+                        </span>
+                        <span>Proceed to Google Pay</span>
+                    </div>
+                    <span class="fw-bold fs-5">₹{{ "%.2f"|format(total) }} <i class="fas fa-chevron-right ms-2 fs-6"></i></span>
+                </button>
+                
+                <div class="text-center text-muted small mt-2">
+                    <i class="fas fa-lock me-1"></i> Your payment details are secure and encrypted
+                </div>
+
+            </div>
+            
+            <!-- Right Column (Desktop Summary Card) -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 90px;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill">
+                            <i class="fas fa-shield-alt me-1"></i> 100% Buyer Protection
+                        </span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Google Pay Express Checkout</h5>
+                    <p class="text-muted small mb-4">Click <strong>Proceed to Google Pay</strong> to open the secure Google Pay sheet overlay and complete your transaction with zero fee.</p>
+                    
+                    <div class="p-3 rounded-4 bg-light border text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style="height: 36px;" class="mb-2" referrerpolicy="no-referrer">
+                        <div class="fw-bold text-dark small">Instant UPI Verification</div>
+                        <div class="text-muted small">Supported on GPay, PhonePe, Paytm & Bank UPI</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<!-- ================================================================= -->
+<!-- GOOGLE PAY PAYMENT SHEET OVERLAY MODAL (Matching User Screenshot) -->
+<!-- ================================================================= -->
+<div class="modal fade" id="gpayModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+        <div class="modal-content gpay-modal-content">
+            
+            <!-- Modal Header -->
+            <div class="gpay-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="G Pay" style="height: 28px;" referrerpolicy="no-referrer">
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-4 pt-1 pb-4">
+                
+                <!-- Merchant & Amount Title -->
+                <div class="text-muted small fw-medium mb-1">Pay ShopSmart AI</div>
+                <div class="fw-bold display-5 text-dark mb-3">₹{{ "%.2f"|format(total) }}</div>
+
+                <!-- Order ID Badge -->
+                <div class="d-inline-flex align-items-center gap-2 bg-light border rounded-pill px-3 py-1.5 mb-4 text-dark small fw-semibold">
+                    <i class="fas fa-store text-secondary"></i>
+                    <span>Order ID: SSAI-2026-{{ current_user.id }}-00123</span>
+                    <i class="fas fa-chevron-down text-muted small ms-1"></i>
+                </div>
+
+                <!-- Paying With Section -->
+                <div class="text-muted small fw-bold mb-2 text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Paying with</div>
+                <div class="gpay-field-box d-flex align-items-center justify-content-between cursor-pointer">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border" style="width: 38px; height: 38px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay" style="height: 16px;" referrerpolicy="no-referrer">
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">Google Pay balance</div>
+                            <div class="text-muted" style="font-size: 12px;">{{ current_user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-dark small">₹{{ "%.2f"|format(total) }}</span>
+                        <i class="fas fa-chevron-down text-muted small"></i>
+                    </div>
+                </div>
+
+                <!-- UPI ID Section -->
+                <div class="gpay-field-box d-flex align-items-center justify-content-between cursor-pointer">
+                    <div>
+                        <div class="text-muted small" style="font-size: 11px;">UPI ID</div>
+                        <div class="fw-bold text-dark small">{{ current_user.email.split('@')[0] }}@okaxis</div>
+                    </div>
+                    <i class="fas fa-chevron-down text-muted small"></i>
+                </div>
+
+                <!-- Bill Details Section -->
+                <div class="gpay-field-box d-flex align-items-center justify-content-between cursor-pointer mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-store text-dark"></i>
+                        <span class="fw-bold text-dark small">ShopSmart AI</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-muted small"></i>
+                </div>
+
+                <!-- Total Amount Summary -->
+                <div class="d-flex align-items-center justify-content-between mb-3 pt-2">
+                    <div>
+                        <div class="fw-bold text-dark fs-5">Total</div>
+                        <div class="text-muted small">ShopSmart AI</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-dark fs-4">₹{{ "%.2f"|format(total) }}</div>
+                        <div class="text-muted small">₹{{ "%.2f"|format(total) }}</div>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="text-center text-muted small mb-3 py-2 bg-light rounded-3 d-flex align-items-center justify-content-center gap-2" style="font-size: 12px;">
+                    <i class="fas fa-lock text-secondary"></i>
+                    <span>This payment is processed securely by <strong>Google Pay</strong></span>
+                </div>
+
+                <!-- Large Blue Modal Action Button -->
+                <button type="button" id="btnModalPayAction" class="btn gpay-pay-btn shadow-sm d-flex align-items-center justify-content-center gap-2 mb-3">
+                    <span>Pay ₹{{ "%.2f"|format(total) }}</span>
+                    <i class="fas fa-chevron-right fs-6"></i>
+                </button>
+
+                <!-- Terms Footer -->
+                <div class="text-center text-muted small mb-3" style="font-size: 11px; line-height: 1.4;">
+                    By continuing, you agree to the <a href="#" class="text-decoration-underline text-muted">Google Payments Terms of Service</a> & <a href="#" class="text-decoration-underline text-muted">Privacy Policy</a>
+                </div>
+
+                <!-- Powered by UPI -->
+                <div class="d-flex align-items-center justify-content-center gap-2 text-muted small pt-2 border-top" style="font-size: 11px;">
+                    <span>Powered by</span>
+                    <span class="fw-bold text-dark tracking-wider" style="letter-spacing: 1px;">UPI <i class="fas fa-check-circle text-success ms-1"></i></span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const radioCards = document.querySelectorAll('.payment-radio-card');
+    const btnMainGPay = document.getElementById('btnMainGPay');
+    const btnModalPayAction = document.getElementById('btnModalPayAction');
+    const gpayModalEl = document.getElementById('gpayModal');
+    const gpayModal = new bootstrap.Modal(gpayModalEl);
+
+    // Toggle Payment Card Selections
+    radioCards.forEach(card => {
+        card.addEventListener('click', function() {
+            radioCards.forEach(c => {
+                c.classList.remove('selected');
+                c.querySelector('input[type="radio"]').checked = false;
+            });
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+
+            if (radio.value === 'Google Pay') {
+                btnMainGPay.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span class="bg-white rounded-pill px-2.5 py-1 text-dark d-inline-flex align-items-center shadow-sm me-3" style="height: 32px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay" style="height: 18px;" referrerpolicy="no-referrer">
+                        </span>
+                        <span>Proceed to Google Pay</span>
+                    </div>
+                    <span class="fw-bold fs-5">₹{{ "%.2f"|format(total) }} <i class="fas fa-chevron-right ms-2 fs-6"></i></span>
+                `;
+            } else {
+                btnMainGPay.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-lock me-3 fs-5"></i>
+                        <span>Place Order (${radio.value})</span>
+                    </div>
+                    <span class="fw-bold fs-5">₹{{ "%.2f"|format(total) }} <i class="fas fa-chevron-right ms-2 fs-6"></i></span>
+                `;
+            }
+        });
+    });
+
+    // Handle Main Action Click
+    btnMainGPay.addEventListener('click', function(e) {
+        e.preventDefault();
+        const selectedRadio = document.querySelector('input[name="payment_method"]:checked');
+        const method = selectedRadio ? selectedRadio.value : 'Google Pay';
+
+        const address = document.getElementById('address').value.trim();
+        const city = document.getElementById('city').value.trim();
+
+        if (!address || !city) {
+            alert('Please fill in complete shipping address details before proceeding.');
+            return;
+        }
+
+        if (method === 'Google Pay') {
+            // Show the Google Pay Sheet Overlay matching the screenshot!
+            gpayModal.show();
+        } else if (method === 'Cash on Delivery') {
+            document.getElementById('checkoutForm').submit();
+        } else {
+            // Directly trigger Razorpay Checkout for other methods
+            executePaymentVerification('Credit Card');
+        }
+    });
+
+    // Handle Click on "Pay ₹5,985.28 >" inside Google Pay Sheet Overlay Modal
+    btnModalPayAction.addEventListener('click', function(e) {
+        e.preventDefault();
+        btnModalPayAction.disabled = true;
+        btnModalPayAction.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing Google Pay...';
+
+        executePaymentVerification('Google Pay');
+    });
+
+    function executePaymentVerification(paymentMethod) {
+        const address = document.getElementById('address').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const zipCode = document.getElementById('zip_code').value.trim();
+
+        const payload = {
+            address: address,
+            city: city,
+            zip_code: zipCode,
+            payment_method: paymentMethod || 'Google Pay'
+        };
+
+        fetch('/payment/create-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert(data.message || 'Error creating payment order.');
+                resetPayButtons();
+                return;
+            }
+
+            if (data.already_paid) {
+                window.location.href = data.redirect_url;
+                return;
+            }
+
+            const options = {
+                key: data.razorpay_key_id,
+                amount: data.amount,
+                currency: data.currency,
+                name: "ShopSmart AI",
+                description: "Order #" + String(data.order_id).padStart(5, '0'),
+                order_id: data.razorpay_order_id,
+                prefill: {
+                    name: data.user_name,
+                    email: data.user_email,
+                    contact: data.user_phone
+                },
+                theme: {
+                    color: "#1a73e8"
+                },
+                handler: function (response) {
+                    verifyServerSignature(data.order_id, response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
+                },
+                modal: {
+                    ondismiss: function() {
+                        resetPayButtons();
+                    }
+                }
+            };
+
+            if (typeof Razorpay !== 'undefined') {
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (resp) {
+                    alert('Payment Failed: ' + (resp.error.description || 'Transaction cancelled.'));
+                    resetPayButtons();
+                });
+                gpayModal.hide();
+                rzp.open();
+            } else {
+                // Demo fallback verification
+                const demoPaymentId = 'pay_gpay_' + Date.now();
+                const demoSig = 'demo_sig_' + Date.now();
+                verifyServerSignature(data.order_id, data.razorpay_order_id, demoPaymentId, demoSig);
+            }
+        })
+        .catch(err => {
+            alert('Failed to process payment.');
+            resetPayButtons();
+        });
+    }
+
+    function verifyServerSignature(orderId, razorpayOrderId, paymentId, signature) {
+        fetch('/payment/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                razorpay_order_id: razorpayOrderId,
+                razorpay_payment_id: paymentId,
+                razorpay_signature: signature
+            })
+        })
+        .then(res => res.json())
+        .then(vData => {
+            if (vData.success) {
+                window.location.href = vData.redirect_url;
+            } else {
+                alert(vData.message || 'Payment verification failed.');
+                resetPayButtons();
+            }
+        })
+        .catch(err => {
+            alert('Error verifying payment.');
+            resetPayButtons();
+        });
+    }
+
+    function resetPayButtons() {
+        btnModalPayAction.disabled = false;
+        btnModalPayAction.innerHTML = '<span>Pay ₹{{ "%.2f"|format(total) }}</span> <i class="fas fa-chevron-right fs-6 ms-2"></i>';
+    }
+});
+</script>
+{% endblock %}

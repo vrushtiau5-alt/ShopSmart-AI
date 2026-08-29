@@ -1,0 +1,40 @@
+<div class="product-card">
+    <div class="product-img-wrap">
+        <a href="{{ url_for('user.product_detail', id=product.id) }}">
+            <img src="{{ product.image_url or '/static/images/placeholder.svg' }}" alt="{{ product.title }}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';">
+        </a>
+        {% if product.is_featured %}
+            <span class="badge-featured"><i class="fas fa-star me-1"></i> Featured</span>
+        {% endif %}
+        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2">
+            <button class="btn btn-light btn-sm rounded-circle shadow-sm btn-wishlist-toggle" data-product-id="{{ product.id }}" title="Wishlist">
+                <i class="far fa-heart text-danger"></i>
+            </button>
+            <a href="{{ url_for('user.add_compare', id=product.id) }}" class="btn btn-light btn-sm rounded-circle shadow-sm" title="Compare">
+                <i class="fas fa-balance-scale text-primary"></i>
+            </a>
+        </div>
+    </div>
+    <div class="p-3 d-flex flex-column flex-grow-1">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="badge-category">{{ product.category.name if product.category else 'General' }}</span>
+            <span class="text-warning small fw-bold"><i class="fas fa-star me-1"></i>{{ product.rating }} ({{ product.reviews_count }})</span>
+        </div>
+        <h6 class="fw-bold mb-1 text-truncate">
+            <a href="{{ url_for('user.product_detail', id=product.id) }}" class="text-dark text-decoration-none">{{ product.title }}</a>
+        </h6>
+        <p class="text-muted small mb-2 text-truncate">{{ product.brand or 'Generic' }}</p>
+
+        <div class="mt-auto pt-2 d-flex align-items-center justify-content-between">
+            <span class="price-tag">₹{{ "%.2f"|format(product.price) }}</span>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary-custom btn-sm btn-add-cart" data-product-id="{{ product.id }}">
+                    <i class="fas fa-cart-plus me-1"></i> Add
+                </button>
+                <a href="{{ url_for('user.product_detail', id=product.id) }}" class="btn btn-outline-secondary btn-sm rounded-3" title="Details">
+                    <i class="fas fa-eye"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

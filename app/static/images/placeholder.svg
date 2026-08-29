@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none">
+  <rect width="600" height="600" fill="#F3F4F6"/>
+  <rect x="200" y="180" width="200" height="200" rx="16" fill="#E5E7EB"/>
+  <path d="M250 310L280 270L320 320L340 295L370 335H230L250 310Z" fill="#9CA3AF"/>
+  <circle cx="270" cy="240" r="18" fill="#9CA3AF"/>
+  <text x="300" y="430" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="500" fill="#6B7280">Product Image Unavailable</text>
+</svg>

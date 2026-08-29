@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}User Profile - ShopSmart AI{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Account Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white mb-4">
+                <div class="avatar avatar-user mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2.5rem;"><i class="fas fa-user"></i></div>
+                <h4 class="fw-bold mb-1">{{ current_user.full_name }}</h4>
+                <div class="text-muted small mb-2">{{ current_user.email }}</div>
+                <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-bold w-auto mx-auto">{{ current_user.role }} Account</span>
+            </div>
+
+            <!-- Profile Update Form -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">Update Profile</h5>
+                <form action="{{ url_for('user.profile') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label small fw-bold">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" class="form-control rounded-3" value="{{ current_user.full_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email Address</label>
+                        <input type="email" class="form-control rounded-3" value="{{ current_user.email }}" readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100"><i class="fas fa-save me-1"></i> Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Orders & Wishlist -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fas fa-box text-primary me-2"></i>Recent Orders</h5>
+                {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for o in recent_orders %}
+                                    <tr>
+                                        <td class="fw-bold">#{{ "%05d"|format(o.id) }}</td>
+                                        <td class="small text-muted">{{ o.created_at.strftime('%b %d, %Y') }}</td>
+                                        <td class="fw-bold">₹{{ "%.2f"|format(o.total_amount) }}</td>
+                                        <td><span class="badge bg-info text-dark">{{ o.status }}</span></td>
+                                        <td><a href="{{ url_for('user.order_detail', id=o.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">Track</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No recent orders.</p>
+                {% endif %}
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fas fa-heart text-danger me-2"></i>Wishlist Summary ({{ wishlist_items|length }} items)</h5>
+                {% if wishlist_items %}
+                    <div class="row g-3">
+                        {% for item in wishlist_items[:4] %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-2 p-2 border rounded-3">
+                                    <img src="{{ item.product.image_url or '/static/images/placeholder.svg' }}" alt="{{ item.product.title }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded-2" loading="lazy" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                                    <div class="flex-grow-1 text-truncate">
+                                        <div class="fw-bold small text-truncate">{{ item.product.title }}</div>
+                                        <div class="text-primary fw-bold small">₹{{ "%.2f"|format(item.product.price) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No items saved in wishlist.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

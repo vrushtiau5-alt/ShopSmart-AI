@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Login - ShopSmart AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 p-4 border-top border-4 border-danger">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-bold mb-2">ADMINISTRATION PORTAL</span>
+                        <h2 class="fw-bold text-danger"><i class="fas fa-user-shield me-2"></i>Administrator Login</h2>
+                        <p class="text-muted small">Authorized executive management access only</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('auth.login_admin_route') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Admin Email or Username *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-shield-alt text-danger"></i></span>
+                                <input type="text" class="form-control" id="email" name="email" placeholder="admin@shopsmart.ai or username" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="password" class="form-label fw-semibold mb-0">Password *</label>
+                                <a href="{{ url_for('auth.forgot_password') }}" class="text-danger small text-decoration-none fw-semibold">Forgot Password?</a>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key text-muted"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter admin password" required>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1">
+                            <label class="form-check-label text-muted small" for="remember">Remember me on this session</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill fw-bold shadow-sm mb-3">
+                            <i class="fas fa-lock me-2"></i>ACCESS ADMIN DASHBOARD
+                        </button>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                            <a href="{{ url_for('auth.register_admin') }}" class="text-danger small text-decoration-none fw-semibold">
+                                <i class="fas fa-shield-alt me-1"></i>Register as Admin
+                            </a>
+                            <a href="{{ url_for('auth.login') }}" class="text-muted small text-decoration-none">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Portal Selection
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

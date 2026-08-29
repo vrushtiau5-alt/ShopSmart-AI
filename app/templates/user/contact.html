@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us - ShopSmart AI{% endblock %}
+{% block content %}
+
+<style>
+.team-member-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.team-member-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(124, 58, 237, 0.1) !important;
+}
+.team-avatar-wrap {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 24px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 100%);
+    padding: 4px;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
+}
+.team-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ffffff;
+}
+.social-round-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+.social-github {
+    background-color: #181717;
+}
+.social-github:hover {
+    background-color: #333333;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(24, 23, 23, 0.4);
+}
+.social-linkedin {
+    background-color: #0a66c2;
+}
+.social-linkedin:hover {
+    background-color: #004182;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(10, 102, 194, 0.4);
+}
+</style>
+
+<div class="container py-5" style="max-width: 1200px;">
+    
+    <!-- Contact Form Card -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-9">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Get in Touch</h2>
+                <p class="text-muted">Have a question or feedback regarding ShopSmart AI? Send us a message below.</p>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                <form action="{{ url_for('user.contact') }}" method="POST">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label fw-bold">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-control rounded-3" placeholder="John Doe" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label fw-bold">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control rounded-3" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label fw-bold">Subject</label>
+                        <input type="text" id="subject" name="subject" class="form-control rounded-3" placeholder="Inquiry regarding..." required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="message" class="form-label fw-bold">Message</label>
+                        <textarea id="message" name="message" class="form-control rounded-3" rows="5" placeholder="Write your message here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-3 font-semibold fs-6">
+                        <i class="fas fa-paper-plane me-2"></i> Submit Inquiry
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meet Our Team Section -->
+    <div class="my-5 pt-3 border-top">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-1">Meet Our <span style="border-bottom: 3px solid #7c3aed; padding-bottom: 4px;">Team</span></h2>
+            <p class="text-muted">The passionate developers behind ShopSmart AI</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Team Member 1: VRUSHTI AU -->
+            <div class="col-lg-6">
+                <div class="team-member-card d-flex align-items-center">
+                    <div class="team-avatar-wrap">
+                        <img src="/static/images/vrushti_dp.jpg" alt="VRUSHTI AU" class="team-avatar-img" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';">
+                    </div>
+
+                    <div>
+                        <h4 class="fw-bold text-dark mb-1">VRUSHTI AU</h4>
+                        <div class="fw-semibold mb-2" style="color: #7c3aed; font-size: 14px;">Project Lead & AI/Python Backend Developer</div>
+                        <p class="text-muted small mb-3" style="font-size: 13px; line-height: 1.5;">
+                            Working on Flask backend, MySQL database, AI Shopping Assistant, authentication, and product management to build a smart and seamless shopping experience.
+                        </p>
+                        <div class="d-flex align-items-center gap-3 text-muted small mb-3" style="font-size: 12px;">
+                            <span><i class="far fa-envelope text-purple me-1" style="color: #7c3aed;"></i> vrushtiau5@gmail.com</span>
+                            <span>|</span>
+                            <span><i class="fas fa-phone-alt text-purple me-1" style="color: #7c3aed;"></i> 8088461551</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="https://github.com/vrushtiau5-alt" target="_blank" rel="noopener noreferrer" class="social-round-icon social-github" aria-label="GitHub profile of VRUSHTI AU" title="GitHub profile of VRUSHTI AU">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/vrushti-a-u-b6a544310" target="_blank" rel="noopener noreferrer" class="social-round-icon social-linkedin" aria-label="LinkedIn profile of VRUSHTI AU" title="LinkedIn profile of VRUSHTI AU">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 2: LINGARAJU K -->
+            <div class="col-lg-6">
+                <div class="team-member-card d-flex align-items-center">
+                    <div class="team-avatar-wrap">
+                        <img src="/static/images/lingaraju_dp.png" alt="LINGARAJU K" class="team-avatar-img" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';">
+                    </div>
+
+                    <div>
+                        <h4 class="fw-bold text-dark mb-1">LINGARAJU K</h4>
+                        <div class="fw-semibold mb-2" style="color: #7c3aed; font-size: 14px;">Frontend Developer & UI/UX Developer</div>
+                        <p class="text-muted small mb-3" style="font-size: 13px; line-height: 1.5;">
+                            Designing responsive user interfaces, product catalogue pages, and creating engaging user experiences for ShopSmart AI.
+                        </p>
+                        <div class="d-flex align-items-center gap-3 text-muted small mb-3" style="font-size: 12px;">
+                            <span><i class="far fa-envelope text-purple me-1" style="color: #7c3aed;"></i> lingulingaraj884@gmail.com</span>
+                            <span>|</span>
+                            <span><i class="fas fa-phone-alt text-purple me-1" style="color: #7c3aed;"></i> 6360328368</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="https://github.com/lingarajuk" target="_blank" rel="noopener noreferrer" class="social-round-icon social-github" aria-label="GitHub profile of LINGARAJU K" title="GitHub profile of LINGARAJU K">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/lingaraju-k-16423b389" target="_blank" rel="noopener noreferrer" class="social-round-icon social-linkedin" aria-label="LinkedIn profile of LINGARAJU K" title="LinkedIn profile of LINGARAJU K">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

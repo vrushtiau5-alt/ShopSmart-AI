@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: shopsmart_db
+    restart: always
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-Vrushti@143}
+      MYSQL_DATABASE: ${DB_NAME:-ai_shopping_assistant}
+      MYSQL_USER: shopsmart_app_user
+      MYSQL_PASSWORD: ${DB_PASSWORD:-Vrushti@143}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database_backup.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    container_name: shopsmart_web
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-Vrushti@143}
+      - DB_NAME=${DB_NAME:-ai_shopping_assistant}
+      - SECRET_KEY=${SECRET_KEY:-shopsmart_ai_super_secret_key_2026}
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - DEBUG=${DEBUG:-True}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_shopsmart_key_id}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-rzp_test_shopsmart_secret_key}
+      - ELECTRONICS_API_URL=${ELECTRONICS_API_URL:-https://datasets-server.huggingface.co/rows}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app/static/uploads:/app/app/static/uploads
+
+volumes:
+  mysql_data:

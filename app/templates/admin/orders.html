@@ -1,0 +1,63 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Orders - Admin{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <h3 class="fw-bold mb-0">Order Management</h3>
+    
+    <!-- Filter by status -->
+    <form action="{{ url_for('admin.orders') }}" method="GET" class="d-flex align-items-center gap-2">
+        <label class="small fw-bold text-muted text-nowrap">Filter Status:</label>
+        <select name="status" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+            <option value="">All Statuses</option>
+            <option value="Pending" {% if selected_status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Processing" {% if selected_status == 'Processing' %}selected{% endif %}>Processing</option>
+            <option value="Shipped" {% if selected_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+            <option value="Delivered" {% if selected_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+            <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                    <tr>
+                        <td class="fw-bold">#{{ "%05d"|format(o.id) }}</td>
+                        <td>{{ o.user.full_name if o.user else 'Guest' }} ({{ o.user.email if o.user else '' }})</td>
+                        <td class="small text-muted">{{ o.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+                        <td class="fw-bold text-primary">₹{{ "%.2f"|format(o.total_amount) }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.order_update_status', id=o.id) }}" method="POST" class="d-inline-block">
+                                <select name="status" class="form-select form-select-sm rounded-pill py-0 px-2 fw-semibold" onchange="this.form.submit()">
+                                    <option value="Pending" {% if o.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Processing" {% if o.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                    <option value="Shipped" {% if o.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="Delivered" {% if o.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="Cancelled" {% if o.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.order_detail', id=o.id) }}" class="btn btn-outline-primary btn-sm rounded-circle" title="View Details"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,57 @@
+<footer class="text-white pt-5 pb-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="fas fa-brain text-info fs-3"></i>
+                    <span class="fs-4 fw-bold text-white">ShopSmart <span class="brand-gradient">AI</span></span>
+                </div>
+                <p class="text-white small">
+                    ShopSmart AI is an intelligent, next-generation e-commerce platform featuring natural language product discovery, AI shopping assistants, and automated recommendation engines.
+                </p>
+                <div class="d-flex gap-3 text-white">
+                    <a href="https://github.com" target="_blank" class="text-white"><i class="fab fa-github fs-5"></i></a>
+                    <a href="https://linkedin.com" target="_blank" class="text-white"><i class="fab fa-linkedin fs-5"></i></a>
+                    <a href="https://twitter.com" target="_blank" class="text-white"><i class="fab fa-twitter fs-5"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h6 class="text-white fw-bold mb-3">Quick Links</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 text-white">
+                    <li><a href="{{ url_for('user.home') }}" class="text-white">Home</a></li>
+                    <li><a href="{{ url_for('user.products') }}" class="text-white">Products Catalog</a></li>
+                    <li><a href="{{ url_for('user.ai_assistant') }}" class="text-white">AI Assistant</a></li>
+                    <li><a href="{{ url_for('user.planner') }}" class="text-white">Shopping Planner</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-white fw-bold mb-3">Customer Support</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 text-white">
+                    <li><a href="{{ url_for('user.about') }}" class="text-white">About Us</a></li>
+                    <li><a href="{{ url_for('user.contact') }}" class="text-white">Contact Us</a></li>
+                    <li><a href="{{ url_for('user.orders') }}" class="text-white">Order Tracking</a></li>
+                    <li><a href="{{ url_for('user.cart') }}" class="text-white">View Cart</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-white fw-bold mb-3">ShopSmart Assurance</h6>
+                <ul class="list-unstyled small text-white d-flex flex-column gap-2">
+                    <li class="text-white"><i class="fas fa-shield-alt text-success me-2"></i>100% Secure Checkout</li>
+                    <li class="text-white"><i class="fas fa-truck text-info me-2"></i>Fast Express Delivery</li>
+                    <li class="text-white"><i class="fas fa-headset text-warning me-2"></i>24/7 AI Shopping Support</li>
+                    <li class="text-white"><i class="fas fa-undo text-primary me-2"></i>Easy 30-Day Returns</li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between text-white small">
+            <div class="text-white">&copy; {{ current_year }} ShopSmart AI. All Rights Reserved.</div>
+            <div class="text-white">Built with Flask, SQLAlchemy, MySQL & Bootstrap 5.</div>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block title %}ShopSmart AI - Intelligent Product Discovery & Shopping Platform{% endblock %}
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold mb-3"><i class="fas fa-sparkles me-1"></i> AI-Powered Shopping Engine</span>
+                <h1 class="display-4 fw-bold text-white mb-3">Discover Products with <span class="brand-gradient">Natural AI Intelligence</span></h1>
+                <p class="lead text-slate-300 mb-4">
+                    Stop guessing database keywords. Simply ask ShopSmart AI for what you need—whether it's an induction stove, headphones for music, or a programming laptop under your budget.
+                </p>
+
+                <!-- Search Bar -->
+                <form action="{{ url_for('user.products') }}" method="GET" class="mb-4">
+                    <div class="input-group input-group-lg shadow-lg rounded-pill overflow-hidden bg-white p-1">
+                        <span class="input-group-text border-0 bg-transparent ps-3"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control border-0 shadow-none fs-6" placeholder="Search induction stoves, laptops, running shoes...">
+                        <button class="btn btn-primary-custom rounded-pill px-4" type="submit">Search</button>
+                    </div>
+                </form>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('user.ai_assistant') }}" class="btn btn-info text-dark fw-bold rounded-pill px-4 py-2">
+                        <i class="fas fa-robot me-2"></i> Launch AI Assistant
+                    </a>
+                    <a href="{{ url_for('user.planner') }}" class="btn btn-outline-light rounded-pill px-4 py-2">
+                        <i class="fas fa-magic me-2"></i> Shopping Planner
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-card shadow-lg">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar avatar-ai"><i class="fas fa-robot"></i></div>
+                            <div>
+                                <div class="fw-bold text-white">Smart Assistant Prompt</div>
+                                <div class="text-info small" style="font-size: 0.75rem;">
+                                    <i class="fas fa-circle text-success me-1" style="font-size: 0.5rem;"></i> Live Intent Extraction
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('user.ai_assistant') }}" class="btn btn-outline-info btn-sm rounded-pill px-3 text-decoration-none" title="Open Full AI Chat">
+                            <i class="fas fa-comments me-1"></i> Chat
+                        </a>
+                    </div>
+
+                    <!-- Live Prompt Input Form -->
+                    <form id="hero-ai-form" class="mb-3">
+                        <div class="input-group input-group-sm rounded-3 overflow-hidden bg-dark border border-secondary">
+                            <span class="input-group-text border-0 bg-transparent text-info ps-3"><i class="fas fa-comment-dots"></i></span>
+                            <input type="text" id="hero-ai-input" class="form-control bg-transparent border-0 text-white shadow-none small" placeholder="Ask AI: e.g. Induction stoves under 5000..." value="Show me induction stoves under 5000" autocomplete="off" required>
+                            <button type="submit" id="hero-ai-submit" class="btn btn-info btn-sm fw-bold px-3">
+                                <i class="fas fa-sparkles me-1"></i> Run
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Quick Sample Prompt Pills -->
+                    <div class="d-flex flex-wrap gap-1 mb-3 hero-prompt-pills">
+                        <button type="button" class="btn btn-dark btn-sm text-slate-300 border-secondary rounded-pill hero-sample-pill" style="font-size: 0.7rem;" data-query="Show me induction stoves under 5000">
+                            ⚡ Stoves &lt; 5000
+                        </button>
+                        <button type="button" class="btn btn-dark btn-sm text-slate-300 border-secondary rounded-pill hero-sample-pill" style="font-size: 0.7rem;" data-query="Show me headphones for music">
+                            🎧 Headphones
+                        </button>
+                        <button type="button" class="btn btn-dark btn-sm text-slate-300 border-secondary rounded-pill hero-sample-pill" style="font-size: 0.7rem;" data-query="Show me running shoes">
+                            👟 Running shoes
+                        </button>
+                        <button type="button" class="btn btn-dark btn-sm text-slate-300 border-secondary rounded-pill hero-sample-pill" style="font-size: 0.7rem;" data-query="Laptop under 60000 for programming">
+                            💻 Laptop &lt; 60k
+                        </button>
+                    </div>
+
+                    <!-- Live AI Intent & Result Output Card -->
+                    <div id="hero-ai-result" class="bg-white p-3 rounded-3 text-dark small shadow-sm position-relative overflow-hidden" style="min-height: 120px;">
+                        <div class="text-success fw-bold mb-1 d-flex align-items-center justify-content-between">
+                            <span><i class="fas fa-check-circle me-1"></i> Intent Matched: <span id="hero-intent-badge">Kitchen Appliances</span></span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.65rem;">Active Engine</span>
+                        </div>
+                        <div id="hero-ai-message" class="text-muted mb-2" style="font-size: 0.8rem;">
+                            Returned matching products for your prompt.
+                        </div>
+                        <div id="hero-ai-products" class="d-flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: thin;">
+                            <!-- Products populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Categories -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Popular Categories</h3>
+                <p class="text-muted small mb-0">Browse products across top trending departments</p>
+            </div>
+            <a href="{{ url_for('user.products') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">View All</a>
+        </div>
+
+        <div class="row g-3">
+            {% for cat in categories %}
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="{{ url_for('user.products', category=cat.slug) }}" class="card text-center border-0 shadow-sm rounded-4 p-3 text-decoration-none text-dark h-100 product-card">
+                        <div class="fs-1 text-primary mb-2"><i class="fas fa-tag"></i></div>
+                        <div class="fw-bold small">{{ cat.name }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ cat.products.count() }} Products</div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Grid -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Featured Products</h3>
+                <p class="text-muted small mb-0">Handpicked top quality products for you</p>
+            </div>
+            <a href="{{ url_for('user.products') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Explore Catalog</a>
+        </div>
+
+        <div class="row g-4">
+            {% for product in featured_products %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    {% include 'components/product_card.html' %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- AI Assistant & Planner CTA Banner -->
+<section class="py-5 bg-dark text-white position-relative overflow-hidden">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-md-8">
+                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2">Smart Feature</span>
+                <h2 class="fw-bold text-white mb-2">Need help choosing the right product?</h2>
+                <p class="text-slate-300 mb-0">Our AI assistant compares specs, answers natural questions, and gives tailored budget recommendations instantly.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ url_for('user.ai_assistant') }}" class="btn btn-primary-custom btn-lg rounded-pill px-4">
+                    <i class="fas fa-comments me-2"></i> Chat with AI Assistant
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular & New Arrivals Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-6">
+                <h4 class="fw-bold mb-3"><i class="fas fa-fire text-danger me-2"></i>Most Popular Products</h4>
+                <div class="d-flex flex-column gap-3">
+                    {% for p in popular_products %}
+                        <div class="d-flex align-items-center gap-3 p-2 border rounded-3 bg-light shadow-sm">
+                            <img src="{{ p.image_url or '/static/images/placeholder.svg' }}" alt="{{ p.title }}" style="width: 80px; height: 70px; object-fit: cover;" class="rounded-2" loading="lazy" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1"><a href="{{ url_for('user.product_detail', id=p.id) }}" class="text-dark text-decoration-none">{{ p.title }}</a></h6>
+                                <div class="text-primary fw-bold">₹{{ "%.2f"|format(p.price) }}</div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm rounded-circle me-2 btn-add-cart" data-product-id="{{ p.id }}"><i class="fas fa-plus"></i></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <h4 class="fw-bold mb-3"><i class="fas fa-bolt text-warning me-2"></i>New Arrivals</h4>
+                <div class="d-flex flex-column gap-3">
+                    {% for p in new_products %}
+                        <div class="d-flex align-items-center gap-3 p-2 border rounded-3 bg-light shadow-sm">
+                            <img src="{{ p.image_url or '/static/images/placeholder.svg' }}" alt="{{ p.title }}" style="width: 80px; height: 70px; object-fit: cover;" class="rounded-2" loading="lazy" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1"><a href="{{ url_for('user.product_detail', id=p.id) }}" class="text-dark text-decoration-none">{{ p.title }}</a></h6>
+                                <div class="text-primary fw-bold">₹{{ "%.2f"|format(p.price) }}</div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm rounded-circle me-2 btn-add-cart" data-product-id="{{ p.id }}"><i class="fas fa-plus"></i></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const heroForm = document.getElementById('hero-ai-form');
+    const heroInput = document.getElementById('hero-ai-input');
+    const heroSubmit = document.getElementById('hero-ai-submit');
+    const heroIntentBadge = document.getElementById('hero-intent-badge');
+    const heroAiMessage = document.getElementById('hero-ai-message');
+    const heroAiProducts = document.getElementById('hero-ai-products');
+    const samplePills = document.querySelectorAll('.hero-sample-pill');
+
+    let isHeroProcessing = false;
+
+    if (!heroForm || !heroInput) return;
+
+    function runHeroAi(query) {
+        if (!query || isHeroProcessing) return;
+        isHeroProcessing = true;
+
+        heroInput.value = query;
+        heroSubmit.disabled = true;
+        heroSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        // Render loading state in result box
+        heroIntentBadge.innerText = 'Analyzing Intent...';
+        heroAiMessage.innerHTML = '<i class="fas fa-circle-notch fa-spin text-info me-1"></i> Extracting intent & matching catalog products...';
+        heroAiProducts.innerHTML = '';
+
+        fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ message: query })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const cats = (data.matched_categories && data.matched_categories.length > 0) 
+                    ? data.matched_categories.join(', ') 
+                    : 'General Product Search';
+                heroIntentBadge.innerText = cats;
+                heroAiMessage.innerText = data.message || 'Intent extracted successfully.';
+
+                if (data.products && data.products.length > 0) {
+                    heroAiProducts.innerHTML = '';
+                    data.products.forEach(p => {
+                        const item = document.createElement('div');
+                        item.className = 'border rounded-2 p-2 bg-light flex-shrink-0';
+                        item.style.width = '130px';
+                        const imgUrl = p.image_url || '/static/images/placeholder.svg';
+                        item.innerHTML = `
+                            <img src="${imgUrl}" alt="${escapeHtml(p.title)}" style="width: 100%; height: 75px; object-fit: contain; background: #fff;" class="rounded-1 mb-1" onerror="this.onerror=null;this.src='/static/images/placeholder.svg';" referrerpolicy="no-referrer">
+                            <div class="fw-bold text-truncate" style="font-size: 0.75rem;" title="${escapeHtml(p.title)}">${escapeHtml(p.title)}</div>
+                            <div class="text-primary fw-bold" style="font-size: 0.75rem;">₹${p.price ? p.price.toFixed(2) : 'N/A'}</div>
+                            <a href="/product/${p.id}" class="btn btn-sm btn-outline-primary w-100 mt-1 py-0" style="font-size: 0.65rem;">View</a>
+                        `;
+                        heroAiProducts.appendChild(item);
+                    });
+                } else {
+                    heroAiProducts.innerHTML = '<div class="text-muted small">No direct product matches found for this query.</div>';
+                }
+            } else {
+                heroIntentBadge.innerText = 'Search Attempted';
+                heroAiMessage.innerText = data.message || 'Unable to process query.';
+                heroAiProducts.innerHTML = '';
+            }
+        })
+        .catch(err => {
+            heroIntentBadge.innerText = 'Connection Issue';
+            heroAiMessage.innerText = 'Unable to reach AI endpoint. Please try again.';
+            heroAiProducts.innerHTML = '';
+        })
+        .finally(() => {
+            isHeroProcessing = false;
+            heroSubmit.disabled = false;
+            heroSubmit.innerHTML = '<i class="fas fa-sparkles me-1"></i> Run';
+        });
+    }
+
+    heroForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        runHeroAi(heroInput.value.trim());
+    });
+
+    samplePills.forEach(pill => {
+        pill.addEventListener('click', function() {
+            const q = this.getAttribute('data-query');
+            if (q) runHeroAi(q);
+        });
+    });
+
+    // Run initial query on load
+    runHeroAi(heroInput.value.trim());
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.innerText = str;
+        return d.innerHTML;
+    }
+});
+</script>
+{% endblock %}
+

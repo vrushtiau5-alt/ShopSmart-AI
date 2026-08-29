@@ -1,0 +1,8 @@
+{
+  "dataset": "Qdrant/hm_ecommerce_products",
+  "config": "default",
+  "split": "train",
+  "last_successful_offset": 105126,
+  "inserted_count": 49283,
+  "timestamp": "2026-08-26T14:41:10.323593+00:00"
+}
