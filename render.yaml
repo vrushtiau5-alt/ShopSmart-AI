@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: shopsmart-ai
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 run:app
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_INVITE_CODE
+        generateValue: true
+      - key: AI_PROVIDER
+        value: gemini
+      - key: ELECTRONICS_API_URL
+        value: https://datasets-server.huggingface.co/rows
+      - key: DATABASE_URL
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false

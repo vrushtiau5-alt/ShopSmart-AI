@@ -28,4 +28,4 @@ COPY . /app/
 EXPOSE 5000
 
 # Run Flask application using Gunicorn production server
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "run:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 4 --timeout 120 run:app"]

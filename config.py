@@ -18,6 +18,8 @@ class Config:
     # Construct MySQL URI using PyMySQL (supports DATABASE_URL override)
     _custom_db_url = os.environ.get('DATABASE_URL')
     if _custom_db_url:
+        if _custom_db_url.startswith('mysql://'):
+            _custom_db_url = _custom_db_url.replace('mysql://', 'mysql+pymysql://', 1)
         SQLALCHEMY_DATABASE_URI = _custom_db_url
     else:
         _encoded_password = quote_plus(DB_PASSWORD) if DB_PASSWORD else ''

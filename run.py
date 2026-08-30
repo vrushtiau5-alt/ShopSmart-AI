@@ -26,15 +26,16 @@ if __name__ == '__main__':
 
     debug_enabled = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
 
+    port_number = int(os.environ.get('PORT', 5000))
+
     print("\n========================================================")
     print(" Starting ShopSmart AI Web Application")
-    print(" Customer URL  : http://127.0.0.1:5000/")
-    print(" Admin URL     : http://127.0.0.1:5000/admin/login")
+    print(f" Server Port   : {port_number}")
     print(f" Debugger Mode : {'ON' if debug_enabled else 'OFF'}")
     print("========================================================\n")
 
     app.run(
         host='0.0.0.0',
-        port=5000,
+        port=port_number,
         debug=debug_enabled
     )
