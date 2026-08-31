@@ -21,6 +21,18 @@ class Config:
     _base_dir = os.path.abspath(os.path.dirname(__file__))
     _db_path = os.path.join(_base_dir, 'shopsmart.db')
 
+    # Helper socket probe to verify database server host availability
+    def _is_host_online(h, p):
+        if not h or h in ('localhost', '127.0.0.1'):
+            return True
+        import socket
+        try:
+            sock = socket.create_connection((h, int(p)), timeout=2)
+            sock.close()
+            return True
+        except Exception:
+            return False
+
     # Ignore unreplaced placeholder text in DATABASE_URL
     if _custom_db_url and ('YOUR_AIVEN_PASSWORD_HERE' in _custom_db_url or 'change_me' in _custom_db_url):
         _custom_db_url = ''
@@ -33,8 +45,18 @@ class Config:
             _url = _url.replace('mysql://', 'mysql+pymysql://', 1)
         elif _url.startswith('postgres://'):
             _url = _url.replace('postgres://', 'postgresql://', 1)
-        SQLALCHEMY_DATABASE_URI = _url
-    elif DB_HOST and DB_HOST != 'localhost' and DB_PASSWORD and 'change_me' not in DB_PASSWORD:
+        
+        # Verify host availability if URL contains remote host
+        import urllib.parse
+        try:
+            parsed = urllib.parse.urlparse(_url.replace('mysql+pymysql://', 'http://').replace('postgresql://', 'http://'))
+            if parsed.hostname and not _is_host_online(parsed.hostname, parsed.port or 3306):
+                SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
+            else:
+                SQLALCHEMY_DATABASE_URI = _url
+        except Exception:
+            SQLALCHEMY_DATABASE_URI = _url
+    elif DB_HOST and DB_HOST != 'localhost' and DB_PASSWORD and 'change_me' not in DB_PASSWORD and _is_host_online(DB_HOST, DB_PORT):
         _encoded_password = quote_plus(DB_PASSWORD)
         SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{_encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     else:
