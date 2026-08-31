@@ -15,11 +15,15 @@ class Config:
     DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
     DB_NAME = os.environ.get('DB_NAME', 'ai_shopping_assistant')
     
-    # Construct Database URI (supports DATABASE_URL override, remote MySQL, or SQLite option)
+    # Construct Database URI (supports DATABASE_URL override, remote MySQL, or SQLite fallback)
     _use_sqlite = os.environ.get('USE_SQLITE', 'False').lower() in ('true', '1', 't')
-    _custom_db_url = os.environ.get('DATABASE_URL')
+    _custom_db_url = os.environ.get('DATABASE_URL', '')
     _base_dir = os.path.abspath(os.path.dirname(__file__))
     _db_path = os.path.join(_base_dir, 'shopsmart.db')
+
+    # Ignore unreplaced placeholder text in DATABASE_URL
+    if _custom_db_url and ('YOUR_AIVEN_PASSWORD_HERE' in _custom_db_url or 'change_me' in _custom_db_url):
+        _custom_db_url = ''
 
     if _use_sqlite:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
@@ -30,12 +34,9 @@ class Config:
         elif _url.startswith('postgres://'):
             _url = _url.replace('postgres://', 'postgresql://', 1)
         SQLALCHEMY_DATABASE_URI = _url
-    elif DB_HOST and DB_HOST != 'localhost':
-        _encoded_password = quote_plus(DB_PASSWORD) if DB_PASSWORD else ''
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{_encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    elif DB_HOST == 'localhost' and DB_PASSWORD:
+    elif DB_HOST and DB_HOST != 'localhost' and DB_PASSWORD and 'change_me' not in DB_PASSWORD:
         _encoded_password = quote_plus(DB_PASSWORD)
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{_encoded_password}@localhost:{DB_PORT}/{DB_NAME}"
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{_encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     else:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
