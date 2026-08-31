@@ -9,7 +9,16 @@ app = create_app()
 def seed_database():
     print("Initializing database tables, default accounts, and product catalog...")
     with app.app_context():
-        return seed_database_builtin()
+        try:
+            return seed_database_builtin()
+        except Exception as err:
+            print(f"Warning: Primary DB initialization exception: {err}")
+            _sqlite_uri = f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'shopsmart.db')}"
+            app.config['SQLALCHEMY_DATABASE_URI'] = _sqlite_uri
+            from app import db
+            db.engine.dispose()
+            db.init_app(app)
+            return seed_database_builtin()
 
 
 if __name__ == '__main__':
@@ -21,8 +30,18 @@ if __name__ == '__main__':
             sys.exit(0 if success else 1)
 
     # Automatically initialize database and sample data on startup
-    with app.app_context():
-        seed_database_builtin()
+    try:
+        with app.app_context():
+            seed_database_builtin()
+    except Exception as err:
+        print(f"Warning: Startup database initialization fallback engaged ({err})")
+        _sqlite_uri = f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'shopsmart.db')}"
+        app.config['SQLALCHEMY_DATABASE_URI'] = _sqlite_uri
+        from app import db
+        with app.app_context():
+            db.engine.dispose()
+            db.init_app(app)
+            seed_database_builtin()
 
     debug_enabled = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
 
