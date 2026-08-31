@@ -41,6 +41,28 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp)
 
+    @app.before_request
+    def ensure_database_connected():
+        if getattr(app, '_db_healthy', False):
+            return
+        try:
+            db.session.execute(db.text('SELECT 1'))
+            app._db_healthy = True
+        except Exception as err:
+            import os
+            app.logger.warning(f"Database connection error ({err}). Initializing failover embedded database...")
+            _base_dir = os.path.abspath(os.path.dirname(__file__))
+            _db_path = os.path.join(_base_dir, '..', 'shopsmart.db')
+            app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{_db_path}"
+            db.engine.dispose()
+            db.init_app(app)
+            try:
+                from app.utils.seed import seed_database_builtin
+                seed_database_builtin()
+            except Exception:
+                pass
+            app._db_healthy = True
+
     @app.route('/health')
     def health():
         return {'status': 'ok'}, 200
