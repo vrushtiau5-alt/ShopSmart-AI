@@ -19,28 +19,25 @@
                 <i class="fas fa-database text-danger fs-1"></i>
                 <div>
                     <h3 class="fw-bold mb-1 text-white">MySQL Database Connection Error</h3>
-                    <div class="text-danger fw-semibold">Database `ai_shopping_assistant` Connection Failed</div>
+                    <div class="text-danger fw-semibold">Database `{{ db_name|default('ai_shopping_assistant') }}` on `{{ db_host|default('localhost') }}` Connection Failed</div>
                 </div>
             </div>
 
             <p class="text-slate-300">
-                ShopSmart AI could not connect to your local MySQL database. As required by project rules, the application does <strong>NOT</strong> silently fallback to an in-memory or SQLite database in production configuration.
+                ShopSmart AI could not connect to your configured MySQL database server.
+                {% if error %}<br><span class="badge bg-danger mt-2 text-wrap text-start">Error: {{ error }}</span>{% endif %}
             </p>
 
             <div class="alert alert-dark border-secondary text-slate-200 mt-4 mb-4">
                 <h6 class="fw-bold text-warning mb-2"><i class="fas fa-wrench me-2"></i>How to Fix MySQL Connection:</h6>
                 <ol class="mb-0 small ps-3">
-                    <li class="mb-2">Ensure MySQL Server is running on your Windows machine.</li>
-                    <li class="mb-2">Open MySQL Command Line or Workbench and create the database:
-                        <br><code>CREATE DATABASE ai_shopping_assistant;</code>
+                    <li class="mb-2">Verify that your cloud or local MySQL database instance is active and running.</li>
+                    <li class="mb-2">Ensure your database <code>{{ db_name|default('defaultdb') }}</code> exists on the database server.</li>
+                    <li class="mb-2">Verify your database environment variables on Render / <code>.env</code>:
+                        <br><code>DB_HOST={{ db_host|default('localhost') }}</code> | <code>DB_PORT={{ db_port|default('3306') }}</code>
+                        <br><code>DB_USER={{ db_user|default('root') }}</code> | <code>DB_NAME={{ db_name|default('defaultdb') }}</code>
                     </li>
-                    <li class="mb-2">Verify your database credentials in <code>.env</code>:
-                        <br><code>DB_HOST=localhost</code> | <code>DB_PORT=3306</code>
-                        <br><code>DB_USER=root</code> | <code>DB_PASSWORD=your_password</code>
-                    </li>
-                    <li>Run the seed script in PowerShell:
-                        <br><code>python run.py seed</code>
-                    </li>
+                    <li>Or set <code>USE_SQLITE=True</code> in environment variables for zero-config instant embedded database deployment.</li>
                 </ol>
             </div>
 

@@ -15,9 +15,15 @@ class Config:
     DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
     DB_NAME = os.environ.get('DB_NAME', 'ai_shopping_assistant')
     
-    # Construct Database URI (supports DATABASE_URL override, remote MySQL, or SQLite fallback)
+    # Construct Database URI (supports DATABASE_URL override, remote MySQL, or SQLite option)
+    _use_sqlite = os.environ.get('USE_SQLITE', 'False').lower() in ('true', '1', 't')
     _custom_db_url = os.environ.get('DATABASE_URL')
-    if _custom_db_url and _custom_db_url.strip():
+    _base_dir = os.path.abspath(os.path.dirname(__file__))
+    _db_path = os.path.join(_base_dir, 'shopsmart.db')
+
+    if _use_sqlite:
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
+    elif _custom_db_url and _custom_db_url.strip():
         _url = _custom_db_url.strip()
         if _url.startswith('mysql://'):
             _url = _url.replace('mysql://', 'mysql+pymysql://', 1)
@@ -31,8 +37,6 @@ class Config:
         _encoded_password = quote_plus(DB_PASSWORD)
         SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{_encoded_password}@localhost:{DB_PORT}/{DB_NAME}"
     else:
-        _base_dir = os.path.abspath(os.path.dirname(__file__))
-        _db_path = os.path.join(_base_dir, 'shopsmart.db')
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

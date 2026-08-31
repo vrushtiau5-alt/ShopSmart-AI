@@ -96,6 +96,10 @@ def create_app(config_class=Config):
     @app.errorhandler(OperationalError)
     def db_connection_error(error):
         db.session.rollback()
-        return render_template('errors/db_error.html', error=error), 500
+        db_host = app.config.get('DB_HOST', 'localhost')
+        db_name = app.config.get('DB_NAME', 'defaultdb')
+        db_user = app.config.get('DB_USER', 'avnadmin')
+        db_port = app.config.get('DB_PORT', '3306')
+        return render_template('errors/db_error.html', error=error, db_host=db_host, db_name=db_name, db_user=db_user, db_port=db_port), 500
 
     return app
